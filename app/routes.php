@@ -91,5 +91,3 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
             Route::get('/user-achievments/create/{achievement_id}/{hash}', 'UserAchivmentsController@create');
             Route::resource('user-subs', 'UserSubsController');
         });
-
-
