@@ -21,10 +21,12 @@ class CreateAchievementsTable extends Migration {
             //$table->foreign('type_id')->references('id')->on('achievement_types');
             $table->string('title');
             $table->text('description');
-            $table->integer('points');
+            //$table->integer('points');
             //$table->smallInteger('status')->unsigned();
             $table->string('image')->nullable();
             $table->timestamps();
+            $table->integer('rate');
+            $table->timestamp('time_limit');
             $table->softDeletes();
 
 		});

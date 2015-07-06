@@ -58,11 +58,13 @@ class AchievementController extends \BaseController {
      */
     public function store() {
         $default_type = 1;
-        $default_points = 10;
+        $default_rate = 0;
+        $default_time_limit = time() + (24 * 36000); // Сейчас + 24 часа
 
         $achievement = new Achievement;
         //$achievement->type_id = $default_type;
-        $achievement->points = $default_points;
+        $achievement->rate = $default_rate;
+        $achievement->time_limit = $default_time_limit;
         //if( isset($_POST['parent_id'])) {
         if (Request::get('parent_id')) {
             $achievement->parent_id = Request::get('parent_id');
@@ -70,11 +72,14 @@ class AchievementController extends \BaseController {
         /* if (Request::get('type_id')){
           $achievement->type_id = Request::get('type_id');
           } */
-        if (Request::get('points')) {
-            $achievement->points = Request::get('points');
+        if (Request::get('rate')) {
+            $achievement->rate = Request::get('rate');
         }
         if (Request::get('image')) {
             $achievement->image = $this->upload_image($achievement->id);
+        }
+        if (Request::get('time_limit')) {
+            $achievement->time_limit = Request::get('time_limit');
         }
         $achievement->title = Request::get('title');
         $achievement->description = Request::get('description');
@@ -131,8 +136,8 @@ class AchievementController extends \BaseController {
             /* if (Request::get('type_id')){
               $achievement->type = Request::get('type_id');
               } */
-            if (Request::get('points')) {
-                $achievement->points = Request::get('points');
+            if (Request::get('rate')) {
+                $achievement->rate = Request::get('rate');
             }
             if (Request::get('image')) {
                 $achievement->image = $this->upload_image($achievement->id);
@@ -142,6 +147,9 @@ class AchievementController extends \BaseController {
             }
             if (Request::get('description')) {
                 $achievement->description = Request::get('description');
+            }
+            if (Request::get('time_limit')) {
+                $achievement->time_limit = Request::get('time_limit');
             }
             $achievement->save();
 
