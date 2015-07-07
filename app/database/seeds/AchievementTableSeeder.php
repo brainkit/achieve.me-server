@@ -14,15 +14,15 @@ class AchievementTableSeeder extends Seeder {
         $default_status = 1; // new achivements
         /*
          * Сейчас + 24 часа
-         * Проверить, не работает! Время при создании записалось 0
          */
-        $default_time_limit = time() + (24 * 36000); 
+        $default_time_limit = time() + (24 * 3600);
+        $default_time_limit1 = date('Y-m-d H:i:s', $default_time_limit);
         Achievement::create(array(
             "parent_id" => null,
             "title" => "Зима не будет!",
             "description" => "Не заметить, как пришла зима",
             "rate" => $default_rate,
-            "time_limit" => $default_time_limit,
+            "time_limit" => $default_time_limit1,
         ));
         /*AchievementType::create(array(
             "achievement_id" => '1',
@@ -34,7 +34,7 @@ class AchievementTableSeeder extends Seeder {
             "title" => "Небеса подождут",
             "description" => "Небеса подождут",
             "rate" => $default_rate,
-            "time_limit" => $default_time_limit,
+            "time_limit" => $default_time_limit1,
         ));
     }
 }
