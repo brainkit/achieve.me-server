@@ -48,10 +48,10 @@ class UserSettingsController extends \BaseController {
     }
 
     /**
+     * Нужно тестить, не работает редактирование
      * Show the form for editing the specified resource.
      * GET /user-settings/{hash}/edit
      *
-     * @param  int  $id
      * @return Response
      */
     public function edit($hash) {

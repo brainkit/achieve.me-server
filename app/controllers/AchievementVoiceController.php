@@ -27,7 +27,7 @@ class AchievementVoiceController extends \BaseController
 
         if (Request::get('achievement')) {
             $achievement_id = Request::get('achievement');
-            $voices = Voice::where("achievement_id", $achievement_id)->paginate($per_page);
+            $voices = AchievementVoice::where("achievement_id", $achievement_id)->paginate($per_page);
             return Response::json(array($voices->toJson()), 200);
         } else {
             return Response::json(array(
@@ -189,6 +189,29 @@ class AchievementVoiceController extends \BaseController
                 200
             );
         }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * GET /achievement-voices/{id}/edit
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * GET /achievement-voices/create
+     *
+     * @return Response
+     */
+    public function create()
+    {
+
     }
 
 }

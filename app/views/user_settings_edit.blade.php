@@ -5,7 +5,8 @@
         <title></title>
     </head>
     <body>
-        {{ Form::open(array('url' => 'user-settings/'.$hash.'/update', 'files' => true)) }}
+        <!-- {{ Form::open(array('url' => 'api/user-settings/'.$hash.'/update', 'files' => true)) }} -->
+        {{ Form::open(array('url' => 'api/user-settings/update?hash='.$hash, 'files' => true)) }}
         <div>{{Form::label('name', 'Имя');}}{{Form::text('name');}}</div>
         <div>{{Form::label('image', 'Фото');}}{{Form::file('image');}}</div>
         <div>{{Form::label('rating', 'Рейтинг');}}{{Form::text('rating');}}</div>

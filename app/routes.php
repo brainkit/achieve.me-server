@@ -64,7 +64,9 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
             //Route::get('achievements/{achievement_id}/edit/{hash}', 'AchievementController@edit');
             //Route::post('achievements/{achievement_id}/update/{hash}', 'AchievementController@update');
             Route::post('achievements/{achievement_id}', 'AchievementController@update');
-            //Route::delete('achievements/{achievement_id}/delete/{hash}', 'AchievementController@delete');
+            //Route::delete('achievements/{achievement_id}/delete/{hash}', 'AchievementController@delete');ив
+            //список голосов для ачивки CHECKED
+            Route::get('/achievements/{achievement_id}/voices', 'AchievementController@getVoices');
             Route::resource('achievements', 'AchievementController');
 
             Route::get('achievement-types/{id}/restore', 'AchievementTypeController@restore');
@@ -79,15 +81,36 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
             Route::post('comments/{comment_id}', 'CommentController@update');
             Route::resource('comments', 'CommentController');
 
-            Route::resource('user', 'UserController');
+
             Route::get('/users', 'UserController@all');
             Route::get('/user-search/{string}', 'UserController@search');
             Route::get('/users/subs/achievements/{user_id}', 'UserAchievementsController@subs_achieve');
-            Route::resource('user-achievements', 'UserAchievementsController');
+            Route::resource('user', 'UserController');
+            Route::resource('user-subs', 'UserSubsController');
+
             Route::get('/user-achievements-count/', 'UserAchievementsController@count');
             Route::get('/user-achievements/{achievement_id}/restore', 'UserAchievementsController@restore');
-            Route::resource('user-settings', 'UserSettingsController');
-            Route::post('/user-settings/update', 'UserSettingsController@update');
             Route::get('/user-achievements/create/{achievement_id}/{hash}', 'UserAchievementsController@create');
-            Route::resource('user-subs', 'UserSubsController');
+            Route::resource('user-achievements', 'UserAchievementsController');
+
+            Route::post('/user-settings/update', 'UserSettingsController@update');
+            Route::resource('user-settings', 'UserSettingsController');
+
+            // Получить голос пользователя для конкретной ачивки
+            // /achievement-voices/voices?user=%user id%&achievement=%achievement_id%&hash=%user_hash%
+            Route::get('/achievement-voices/voices', 'AchievementVoiceController@getVoice');
+            Route::get('/achievement-voices/{id}/restore', 'AchievementVoiceController@restore');
+            /* RESTFull routes
+             * TESTED:
+             * GET /achievement-voices?achievement=%achievement_id%&hash=hash AchievementVoiceController@index
+             * GET /achievement-voices/{id} AchievementVoiceController@show
+             * NOT TESTED
+             * GET /achievement-voices/{id}/edit AchievementVoiceController@edit
+             * GET /achievement-voices/create AchievementVoiceController@create
+             * POST /achievement-voices AchievementVoiceController@store
+             * PUT/PATCH /achievement-voices/{id} AchievementVoiceController@update
+             * DELETE /achievement-voices/{id} AchievementVoiceController@destroy
+            */
+            Route::resource('achievement-voices','AchievementVoiceController' );
+
         });

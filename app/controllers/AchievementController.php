@@ -302,7 +302,7 @@ class AchievementController extends \BaseController {
         $achievement = Achievement::find($achievement_id);
         if ($achievement) {
 
-            $voices = Voice::where("achievement_id", $achievement_id)->paginate($per_page);
+            $voices = AchievementVoice::where("achievement_id", $achievement_id)->paginate($per_page);
             return Response::json(array($voices->toJson()), 200);
         } else {
             return Response::json(array(
