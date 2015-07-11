@@ -13,9 +13,9 @@ class AchievementTableSeeder extends Seeder {
         $default_rate = 0;
         $default_status = 1; // new achivements
         /*
-         * Сейчас + 24 часа
+         * Сейчас + 2 дня
          */
-        $default_time_limit = time() + (24 * 3600);
+        $default_time_limit = time() + (2 * 24 * 3600);
         $default_time_limit1 = date('Y-m-d H:i:s', $default_time_limit);
         Achievement::create(array(
             "parent_id" => null,

@@ -285,6 +285,33 @@ class AchievementController extends \BaseController {
     }
 
     /**
+     * Show achievement voices
+     * GET /achievements/{achievement_id}/voices?limit=%num_pages_to_show%&page=%age_number%&hash=%user_hash%
+     *
+     * @return Response
+     */
+    public function getVoices($achievement_id) {
+        $per_page = 10; // limit
+        $current_page = 1; // page
+        if (Request::get('page')) {
+            $current_page = Request::get('page');
+        };
+        if (Request::get('limit')) {
+            $per_page = Request::get('limit');
+        };
+        $achievement = Achievement::find($achievement_id);
+        if ($achievement) {
+
+            $voices = Voice::where("achievement_id", $achievement_id)->paginate($per_page);
+            return Response::json(array($voices->toJson()), 200);
+        } else {
+            return Response::json(array(
+                'error' => true,
+                'message' => 'achievement not found'), 404);
+        }
+    }
+
+    /**
      * Restore the specified resource from trash
      * @param int $id
      * @return Response

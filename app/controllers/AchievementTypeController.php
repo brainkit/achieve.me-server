@@ -42,10 +42,10 @@ class AchievementTypeController extends \BaseController
         $type = new AchievementType;
 
         if(Request::get('type_id')) {
-            $type->type = Request::get('type_id');
+            $type->type_id = Request::get('type_id');
         }
         if(Request::get('achievement_id')) {
-            $type->type = Request::get('achievement_id');
+            $type->achievement_id = Request::get('achievement_id');
         }
         $type->save();
         return Response::json(array(

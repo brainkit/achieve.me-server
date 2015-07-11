@@ -88,6 +88,6 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
             Route::get('/user-achievements/{achievement_id}/restore', 'UserAchievementsController@restore');
             Route::resource('user-settings', 'UserSettingsController');
             Route::post('/user-settings/update', 'UserSettingsController@update');
-            Route::get('/user-achievments/create/{achievement_id}/{hash}', 'UserAchivmentsController@create');
+            Route::get('/user-achievements/create/{achievement_id}/{hash}', 'UserAchievementsController@create');
             Route::resource('user-subs', 'UserSubsController');
         });
