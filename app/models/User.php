@@ -32,4 +32,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     public function subs() {
         return $this->belongsToMany('UserSettings', 'user_subs', 'user_id', 'user_id_sub');
     }
+
+    public function voices() {
+        return $this->belongsToMany('AchievementVoice', 'achievements_voices', 'user_id', 'voice_id');
+    }
 }

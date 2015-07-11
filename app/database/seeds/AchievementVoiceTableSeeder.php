@@ -2,6 +2,7 @@
 
 class AchievementVoiceTableSeeder extends Seeder {
     public function run(){
+        Eloquent::unguard();
         DB::table('achievement_voices')->delete();
 
         $default_voice_id = 1;
@@ -10,8 +11,8 @@ class AchievementVoiceTableSeeder extends Seeder {
         $user = DB::table('users')->first();
 
         AchievementVoice::create(array(
-                "achievement_id" => $achievement->id,
-                'type_id' => $user->id,
+                'achievement_id' => $achievement->id,
+                'user_id' => $user->id,
                 'voice' => true
         ));
     }

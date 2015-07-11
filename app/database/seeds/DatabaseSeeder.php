@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder {
         $this->call('TypeTableSeeder');
         $this->call('AchievementTableSeeder');
         $this->call('AchievementTypeTableSeeder');
+        $this->call('AchievementVoiceTableSeeder');
     }
 
 }

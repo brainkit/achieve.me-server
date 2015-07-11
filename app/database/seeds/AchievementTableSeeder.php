@@ -8,6 +8,7 @@
 
 class AchievementTableSeeder extends Seeder {
     public function run(){
+        Eloquent::unguard();
         DB::table('achievements')->delete();
 
         $default_rate = 0;

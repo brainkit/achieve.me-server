@@ -12,4 +12,8 @@ class Achievement extends Eloquent {
         return $this ->belongsToMany('Type', 'achievement_types','achievement_id',
             'type_id');
     }
+
+    public function voices() {
+        return $this->belongsToMany('AchievementVoice', 'achievements_voices', 'achievement_id', 'voice_id');
+    }
 }
