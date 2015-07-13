@@ -113,4 +113,19 @@ Route::get('/oauth/authorize', array('before' => 'check-authorization-params|aut
             */
             Route::resource('achievement-voices','AchievementVoiceController' );
 
+            //Доказательства ачивок
+            Route::get('/achievement-proofs/{id}/restore', 'AchievementProofController@restore');
+            /* RESTFull routes
+             * GET /achievement-proofs?achievement=%achievement_id%&hash=hash AchievementProofController@index
+             * GET /achievement-proofs/{id} AchievementProofController@show
+             *  POST /achievement-proofs AchievementProofController@store
+             * PUT/PATCH /achievement-proofs/{id} AchievementProofController@update
+             * DELETE /achievement-proofs/{id} AchievementProofController@destroy
+             * Не написаны:
+             * GET /achievement-proofs/{id}/edit AchievementProofController@edit
+             * GET /achievement-proofs/create AchievementProofController@create
+             *
+            */
+            Route::resource('achievement-proofs','AchievementProofController' );
+
         });
