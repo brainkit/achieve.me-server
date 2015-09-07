@@ -11,8 +11,12 @@ class UserSettingsController extends \BaseController {
     public function index() {
         $user = User::find(Session::get('user_id'));
         $userSettings = UserSettings::where('user_id', '=', $user->id)->first();
-        return $userSettings->toJson();
-    }
+        //TODO check for null
+        if ($userSettings != null) {
+            return $userSettings->toJson();
+        }
+           }
+
 
     /**
      * Show the form for creating a new resource.
@@ -44,7 +48,9 @@ class UserSettingsController extends \BaseController {
     public function show($hash) {
         $user = User::where('hash', '=', $hash)->first();
         $userSettings = UserSettings::where('user_id', '=', $user->id)->first();
-        return $userSettings->toJson();
+        if ($userSettings != null) {
+            return $userSettings->toJson();
+        }
     }
 
     /**

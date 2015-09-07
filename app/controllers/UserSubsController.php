@@ -9,12 +9,13 @@ class UserSubsController extends \BaseController {
      * @return Response
      */
     public function index() {
-        $limit = 5;
+        $limit = 10;
         if (Request::get('limit')) {
             $limit = Request::get('limit');
         };
         $UserSubs = User::find(Session::get('user_id'))->subs()->paginate($limit);
         // $UserAchievements = UserAchievements::where('user_id', '=', $user->id)->get();
+        //Return $UserSubs->toJson();
         return Response::json(array($UserSubs->toJson()), 200);
     }
 
