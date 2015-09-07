@@ -70,21 +70,28 @@ class AchievementVoiceController extends \BaseController
      */
     public function store() {
         $voice = new AchievementVoice;
-        if(Request::get('user_id')) {
-            $voice->user_id = Request::get('user_id');
-        }
         if(Request::get('achievement_id')) {
             $voice->achievement_id = Request::get('achievement_id');
-        }
-        if(Request::get('voice')) {
-            $voice->voice = Request::get('voice');
-        }
-        $voice->save();
-        return Response::json(array(
+
+            if (Request::get('user_id')) {
+                $voice->user_id = Request::get('user_id');
+            }
+            if (Request::get('voice')) {
+                $voice->voice = Request::get('voice');
+            }
+            $voice->save();
+            return Response::json(array(
                 'error' => false,
-                'voice' =>  $voice),
-            200
-        );
+                'voice' => $voice),
+                200
+            );
+        } else {
+            return Response::json(array(
+                'error' => true,
+                'message' => "achievement id not specified"),
+                200
+            );
+        }
     }
 
     /**
