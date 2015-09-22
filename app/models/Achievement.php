@@ -20,4 +20,8 @@ class Achievement extends Eloquent {
     public function proofs() {
         return $this->belongsToMany('AchievementProof', 'achievements_proofs', 'achievement_id', 'proof_id');
     }
+
+    public function payment() {
+        return $this->belongsTo('Payment');
+    }
 }

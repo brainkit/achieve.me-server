@@ -25,7 +25,7 @@ class CreateAchievementsTable extends Migration {
             //$table->smallInteger('status')->unsigned();
             $table->string('image')->nullable();
             $table->timestamps();
-            $table->integer('rate');
+            $table->integer('rate'); //ставка
             $table->timestamp('time_limit')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->softDeletes();
 

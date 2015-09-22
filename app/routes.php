@@ -14,6 +14,15 @@
 Route::get('/', function() {
     return View::make('hello');
 });
+
+Route::group(array('prefix' => 'payment'), function() {
+    Route::post('/orderCheck', 'PaymentController@check');
+    Route::post('/paymentAviso', 'PaymentController@paymentAviso'); //result url
+    Route::get('/', 'PaymentController@showForm');
+    Route::post('/pay', 'PaymentController@processForm');
+});
+
+
 Route::get('/oauth/authorize', array('before' => 'check-authorization-params|auth', function() {
         // get the data from the check-authorization-params filter
         $params = Session::get('authorize-params');

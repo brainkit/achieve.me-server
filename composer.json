@@ -6,6 +6,7 @@
 	"require": {
 		    "laravel/framework": "4.2.*",
                     "lucadegasperi/oauth2-server-laravel": "1.0.x"
+
                    },
 	"autoload": {
 		"classmap": [
