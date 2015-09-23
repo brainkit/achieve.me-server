@@ -17,11 +17,12 @@ class CreatePaymentsTable extends Migration {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedInteger('achievement_id');
+            $table->unsignedInteger('achievement_id'); //orderNumber
             $table->foreign('achievement_id')->references('id')->on('achievements');
+            $table->integer('invoice_id')->unsigned();
             $table->smallInteger('status')->unsigned();
             $table->float('sum');
-            $table->timestamps('time');
+            $table->timestamp('time');
             $table->timestamps();
             $table->softDeletes();
         });

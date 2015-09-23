@@ -20,6 +20,8 @@ Route::group(array('prefix' => 'payment'), function() {
     Route::post('/paymentAviso', 'PaymentController@paymentAviso'); //result url
     Route::get('/', 'PaymentController@showForm');
     Route::post('/pay', 'PaymentController@processForm');
+    Route::get('/orderCheck', 'PaymentController@showError');
+    Route::get('/paymentAviso', 'PaymentController@showError');
 });
 
 
