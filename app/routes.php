@@ -16,7 +16,7 @@ Route::get('/', function() {
 });
 
 Route::group(array('prefix' => 'payment'), function() {
-    Route::post('/orderCheck', 'PaymentController@check');
+    Route::post('/orderCheck', 'PaymentController@orderCheck');
     Route::post('/paymentAviso', 'PaymentController@paymentAviso'); //result url
     Route::get('/', 'PaymentController@showForm');
     Route::post('/pay', 'PaymentController@processForm');

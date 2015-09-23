@@ -39,6 +39,7 @@ class PaymentController extends \BaseController {
      * */
     public function orderCheck(){
 
+        //var_dump($_REQUEST); die();
         $shopId = Config::get('payment.shopId');
         $scid = Config::get('payment.scid');
         $ShopPassword = Config::get('payment.ShopPassword');
@@ -63,7 +64,7 @@ class PaymentController extends \BaseController {
         //Date
         $orderCreatedDatetime  = ( isset($_REQUEST['orderCreatedDatetime']) ? $_REQUEST['orderCreatedDatetime'] : time() );
         // Номер заказа в БД магазина (присланный в платежной форме)
-        $order_id=$_REQUEST['orderNumber']; //achievement_id
+        $order_id=( isset($_REQUEST['orderNumber']) ? $_REQUEST['orderNumber'] : 0); //achievement_id
 
         $sum=floatval($order_amount);
         $query = "";
@@ -87,10 +88,10 @@ class PaymentController extends \BaseController {
 						`status`
 				FROM payments
 				WHERE
-						`invoice_id` = '".$order_invoice."'.
+						`invoice_id` = '".$order_invoice."'
 						AND `achievement_id`='".$order_id."'
 						AND `sum`>='".$sum."'
-						AND `status` in ('".YM_WAIT_STATUS."','".YM_PAYMENT_STATUS."')";
+						AND `status` in ('".YM_WAIT_STATUS."','".YM_PAYMENT_STATUS."','".YM_CHECK_STATUS."')";
             $error=0;
         }
 
@@ -110,6 +111,7 @@ class PaymentController extends \BaseController {
             //проверка, существует ли достижение с этой ставкой и пользователем
             if(count($results) == 1 && count($results_ach>1)) {
                 $record = $results[0];
+                //echo(md5("checkOrder;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"));die();
                 if ( strcasecmp(md5("checkOrder;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"), $md5) === 0 )
                 {
                     $time=time();
@@ -119,18 +121,19 @@ class PaymentController extends \BaseController {
 
                     // Ответ на первый запрос checkOrder от Яндекс.Денег (подтверждение заказа на оплату)
                     //Если такой заказ уже есть, обновляем
-                    if (count($results_payments)==1) {
+                    if (count($results_payments)>1) {
+                        //var_dump($results_payments); die();
                         $record = $results_payments[0];
-                        if ( $record['order_status'] == YM_WAIT_STATUS ){
+                        if ( $record->status == YM_WAIT_STATUS ){
                             //Изменяем статус заказа на ПОЛЬЗОВАТЕЛЬ ПОДТВЕРДИЛ ЧЕК
                             $qv = "update payments
 								set status = ".YM_CHECK_STATUS."
-								where id = ".$record['id']."";
+								where invoice_id = ".$record->invoice_id."";
                             $ans = DB::update($qv);
-                            if($ans) $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0);
-                        } elseif ( $record['order_status'] == YM_CHECK_STATUS ) {
+                            if($ans) $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0,  $order_amount);
+                        } elseif ( $record->status== YM_CHECK_STATUS ) {
                                 //Отвечаем серверу Яндекс.Денег, что все хорошо, такой заказ существует и в нужном статусе
-                                $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0);
+                                $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0, $order_amount);
                         } else {
                             //Отвечаем серверу Яндекс.Денег, кодом 100 - Отказ в приеме перевода с заданными параметрами. Оператор считает ошибку окончательной и не будет осуществлять перевод.
                             $rezult= $this->answer('checkOrder',$shopId,$order_invoice,100);
@@ -138,10 +141,10 @@ class PaymentController extends \BaseController {
                         $is_repeat_request = 1;
                     } else {
                         //создание нового заказа
-                        $qv = "insert into payments(invoice_id, achievement_id, status, sum, time)
-                        values('".$order_invoice."', '".$order_id.", '".YM_CHECK_STATUS."','".$orderCreatedDatetime."'')";
+                        $qv = "insert into payments(user_id, invoice_id, achievement_id, status, sum, time)
+                        values('".$order_customer."','".$order_invoice."', '".$order_id."', '".YM_CHECK_STATUS."','".$order_amount."','".$orderCreatedDatetime."')";
                         $ans = DB::insert($qv);
-                        if($ans) $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0);
+                        if($ans) $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0, $order_amount);
                     }
                 }else {
                     //Отвечаем серверу Яндекс.Денег, кодом 1 - Несовпадение подписи (или хеша), неверный ключ подписи. Оператор считает ошибку окончательной и не будет осуществлять перевод.
@@ -185,7 +188,7 @@ class PaymentController extends \BaseController {
         //Date
         $orderCreatedDatetime  = ( isset($_REQUEST['orderCreatedDatetime']) ? $_REQUEST['orderCreatedDatetime'] : time() );
         // Номер заказа в БД магазина (присланный в платежной форме)
-        $order_id=$_REQUEST['orderNumber']; //achievement_id
+        $order_id=( isset($_REQUEST['orderNumber']) ? $_REQUEST['orderNumber'] : 0); //achievement_id
 
         $sum=floatval($order_amount);
         $qv = "";
@@ -200,7 +203,7 @@ class PaymentController extends \BaseController {
 						`status`
 				FROM payments
 				WHERE
-						`invoice_id` = '".$order_invoice."'.
+						`invoice_id` = '".$order_invoice."'
 						AND `achievement_id`='".$order_id."'
 						AND `sum`>='".$sum."'
 						AND `status` in ('".YM_WAIT_STATUS."','".YM_PAYMENT_STATUS."')";
@@ -210,7 +213,7 @@ class PaymentController extends \BaseController {
         if( $error )
         {
             //Отвечаем серверу Яндекс.Денег, кодом 200 - ИС Контрагента не в состоянии разобрать запрос. Оператор считает ошибку окончательной и не будет осуществлять перевод.
-            $rezult=$this->answer('checkOrder',$shopId,$order_invoice,200);
+            $rezult=$this->answer('paymentAviso',$shopId,$order_invoice,200);
             $error=1;
         } elseif ( $qv ) {
             //Запрос в к базе данных о заказе
@@ -218,7 +221,7 @@ class PaymentController extends \BaseController {
 
             if(count($results) == 1) {
                 $record = $results[0];
-                if ( strcasecmp(md5("checkOrder;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"), $md5) === 0 )
+                if ( strcasecmp(md5("paymentAviso;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"), $md5) === 0 )
                 {
                     $time=time();
                     $d = array();
@@ -239,29 +242,29 @@ class PaymentController extends \BaseController {
 								where id = ".$record['id']."";
                         $ans = DB::update($qv);
                         //Отвечаем серверу Яндекс.Денег, что все хорошо, можно принимать деньги
-                        if($ans) $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0);
+                        if($ans) $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,0);
 
                     } else {
 
                         if ( $record['order_status'] == YM_PAYMENT_STATUS )
                         {
                             //Отвечаем серверу Яндекс.Денег, что все хорошо, такой заказ существует и в нужном статусе
-                            $rezult= $this->answer('checkOrder',$shopId,$order_invoice,0);
+                            $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,0);
                         } else {
                             //Отвечаем серверу Яндекс.Денег, кодом 100 - Отказ в приеме перевода с заданными параметрами. Оператор считает ошибку окончательной и не будет осуществлять перевод.
-                            $rezult= $this->answer('checkOrder',$shopId,$order_invoice,1);
+                            $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,1);
                         }
                     }
 
                 }else {
                     //Отвечаем серверу Яндекс.Денег, кодом 1 - Несовпадение подписи (или хеша), неверный ключ подписи. Оператор считает ошибку окончательной и не будет осуществлять перевод.
-                    $rezult=$this->answer('checkOrder',$shopId,$order_invoice,1);
+                    $rezult=$this->answer('paymentAviso',$shopId,$order_invoice,1);
                     $error=1;
                 }
 
             } else {
                 //Отвечаем серверу Яндекс.Денег, кодом 666 - Да, такой ошибки скорее всего нет, ну и ладно. Платеж то все-равно не прошел.
-                $rezult=$this->answer('checkOrder',$shopId,$order_invoice,666);
+                $rezult=$this->answer('paymentAviso',$shopId,$order_invoice,666);
                 $error=1;
             }
 
@@ -276,12 +279,12 @@ class PaymentController extends \BaseController {
     }
 
     //Функция выдает ответ для платежной системы Яндекс.Деньги в формате XML
-    function answer($action,$shopID,$invoiceId,$code)
+    function answer($action,$shopID,$invoiceId,$code, $sum =0)
     {
         switch ($action)
         {
             case 'checkOrder':
-                $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".'<checkOrderResponse performedDatetime ="'.date(DATE_ATOM).'" code="'.(int)$code.'" invoiceId="'.$invoiceId.'" shopId="'.(int)$shopID.'"/>';
+                $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".'<checkOrderResponse performedDatetime ="'.date(DATE_ATOM).'" code="'.(int)$code.'" invoiceId="'.$invoiceId.'" shopId="'.(int)$shopID.'" orderSumAmount="'.$sum.'"/>';
                 break;
             case 'paymentAviso':
                 $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".'<paymentAvisoResponse performedDatetime ="'.date(DATE_ATOM).'" code="'.(int)$code.'" invoiceId="'.$invoiceId.'" shopId="'.(int)$shopID.'"/>';
