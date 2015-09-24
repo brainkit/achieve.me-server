@@ -182,7 +182,7 @@ class PaymentController extends \BaseController {
         // Код процессингового центра Оператора для суммы заказа
         $order_bank=( isset($_REQUEST['orderSumBankPaycash']) ? intval($_REQUEST['orderSumBankPaycash']) : 0 );
         // Идентификатор плательщика (присланный в платежной форме)
-        $order_customer=( isset($_REQUEST['customerNumber']) ? $_REQUEST['customerNumber'] : 0 );
+        $order_customer=( isset($_REQUEST['customerNumber']) ? $_REQUEST['customerNumber'] : 0 ); //user_id
         // Контрольный MD5-хеш
         $md5=( isset($_REQUEST['md5']) ? $_REQUEST['md5'] : md5("Yandex.Money demo mode") );
         //Date
@@ -194,7 +194,7 @@ class PaymentController extends \BaseController {
         $qv = "";
 
         //Ответ на запрос checkOrder от Яндекс.Денег (проверка параметров заказа в базе данных)
-        if($_REQUEST['action']=='checkOrder' && $order_id )
+        if($_REQUEST['action']=='paymentAviso' && $order_id )
         {
             //Проверка кода и переводимой за него суммы
             $qv = "	SELECT `invoice_id`,
@@ -203,10 +203,11 @@ class PaymentController extends \BaseController {
 						`status`
 				FROM payments
 				WHERE
-						`invoice_id` = '".$order_invoice."'
+						`user_id` = '".$order_customer."'
+						AND `invoice_id` = '".$order_invoice."'
 						AND `achievement_id`='".$order_id."'
 						AND `sum`>='".$sum."'
-						AND `status` in ('".YM_WAIT_STATUS."','".YM_PAYMENT_STATUS."')";
+						AND `status` in ('".YM_WAIT_STATUS."','".YM_CHECK_STATUS."','".YM_PAYMENT_STATUS."')";
             $error=0;
         }
 
@@ -219,41 +220,26 @@ class PaymentController extends \BaseController {
             //Запрос в к базе данных о заказе
             $results = DB::select($qv);
 
-            if(count($results) == 1) {
+            if(count($results) > 1) {
+                // Если платежей в базе 1 или больше, берем первый
                 $record = $results[0];
+                //echo(md5("paymentAviso;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"));die();
                 if ( strcasecmp(md5("paymentAviso;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"), $md5) === 0 )
                 {
-                    $time=time();
-                    $d = array();
-                    $d['order_id'] = $order_id;	//Идентификатор записи заказа
-                    $is_repeat_request = false;	//Повторный запрос от Яндекс.Денег с тем же invoiceId
-
                     //Ответ на первый запрос paymentAviso от Яндекс.Денег (прием оплаты)
-                    if ($record['order_status'] != YM_CHECK_STATUS || $record['order_status'] != YM_WAIT_STATUS) {
-                        $is_repeat_request = true;
-                    }
-
-                    if ( !$is_repeat_request )
-                    {
+                    if ($record->status != YM_PAYMENT_STATUS) {
                         // Обновление состояния заказа
-                        //Создаем запись о заказе с указаным invoiceId или обновляем статус заказа
+                        //обновляем статус заказа
                         $qv = "update payments
 								set status = ".YM_PAYMENT_STATUS."
-								where id = ".$record['id']."";
+
+								where invoice_id = ".$record->invoice_id."";
                         $ans = DB::update($qv);
                         //Отвечаем серверу Яндекс.Денег, что все хорошо, можно принимать деньги
                         if($ans) $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,0);
-
                     } else {
-
-                        if ( $record['order_status'] == YM_PAYMENT_STATUS )
-                        {
-                            //Отвечаем серверу Яндекс.Денег, что все хорошо, такой заказ существует и в нужном статусе
-                            $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,0);
-                        } else {
-                            //Отвечаем серверу Яндекс.Денег, кодом 100 - Отказ в приеме перевода с заданными параметрами. Оператор считает ошибку окончательной и не будет осуществлять перевод.
-                            $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,1);
-                        }
+                        //Отвечаем серверу Яндекс.Денег, кодом 100 - Отказ в приеме перевода с заданными параметрами. Оператор считает ошибку окончательной и не будет осуществлять перевод.
+                        $rezult= $this->answer('paymentAviso',$shopId,$order_invoice,1);
                     }
 
                 }else {
