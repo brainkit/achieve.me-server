@@ -219,8 +219,7 @@ class PaymentController extends \BaseController {
         } elseif ( $qv ) {
             //Запрос в к базе данных о заказе
             $results = DB::select($qv);
-
-            if(count($results) > 1) {
+            if(count($results) > 0) {
                 // Если платежей в базе 1 или больше, берем первый
                 $record = $results[0];
                 //echo(md5("paymentAviso;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"));die();
