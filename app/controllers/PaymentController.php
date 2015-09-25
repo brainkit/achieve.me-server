@@ -109,7 +109,7 @@ class PaymentController extends \BaseController {
             $results_payments= DB::select($query_payment);
 
             //проверка, существует ли достижение с этой ставкой и пользователем
-            if(count($results) == 1 && count($results_ach>1)) {
+            if(count($results) == 1 && count($results_ach>=1)) {
                 $record = $results[0];
                 //echo(md5("checkOrder;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"));die();
                 if ( strcasecmp(md5("checkOrder;$order_amount;$order_currency;$order_bank;$shopId;$order_invoice;$order_customer;$ShopPassword"), $md5) === 0 )
@@ -259,8 +259,23 @@ class PaymentController extends \BaseController {
 
     }
 
-    public function processForm(){
+    public function successUrl() {
+        return View::make('payment_redirect', array('status' => 'success'));
+    }
 
+    public function failUrl() {
+        return View::make('payment_redirect', array('status' => 'fail'));
+    }
+
+    public function cancelOrder() {
+        $shopId = Config::get('payment.shopId');
+        if($_REQUEST['action']=='cancelOrder' ){
+            // Идентификатор запроса
+            $order_invoice=( isset($_REQUEST['invoiceId']) ? $_REQUEST['invoiceId'] : 0 );
+            return $this->answer('cancelOrder', $shopId, $order_invoice, 200);
+        }
+        // Идентификатор запроса
+        return $this->answer('', $shopId, 0, 200);
     }
 
     //Функция выдает ответ для платежной системы Яндекс.Деньги в формате XML

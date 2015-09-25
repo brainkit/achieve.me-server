@@ -16,12 +16,15 @@ Route::get('/', function() {
 });
 
 Route::group(array('prefix' => 'payment'), function() {
-    Route::post('/orderCheck', 'PaymentController@orderCheck');
-    Route::post('/paymentAviso', 'PaymentController@paymentAviso'); //result url
-    Route::get('/', 'PaymentController@showForm');
-    Route::post('/pay', 'PaymentController@processForm');
     Route::get('/orderCheck', 'PaymentController@showError');
     Route::get('/paymentAviso', 'PaymentController@showError');
+    Route::post('/orderCheck', 'PaymentController@orderCheck');
+    Route::post('/paymentAviso', 'PaymentController@paymentAviso'); //result url
+    Route::post('/cancelOrder', 'PaymentController@cancelOrder');
+    Route::get('/', 'PaymentController@showForm');
+    Route::get('/success', 'PaymentController@successUrl');
+    Route::get('/fail', 'PaymentController@failUrl');
+
 });
 
 
